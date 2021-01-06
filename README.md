@@ -4,4 +4,6 @@ A repository of OI codes.
 
 Author: yinjun2024
 
-And hrer is some note for problems
+And here is some note for problems
+
+**have fun!**
