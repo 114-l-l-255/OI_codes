@@ -1,3 +1,4 @@
+#include <cstdio>
 template<typename T> void sort(T *l, T *r) {
 	if (l == r - 1) return;
 	int mid = (r - l) >> 1;
@@ -24,13 +25,13 @@ template<typename T> void sort(T *l, T *r) {
 		*i = *j;
 	}
 }
-inline int max(int a, int b) {
+template<typename T> inline T max(T a, T b) {
 	return a > b ? a : b;
 }
-inline int min(int a, int b) {
+template<typename T> inline T min(T a, T b) {
 	return a < b ? a : b;
 }
-inline int abs(int x) {
+template<typename T> inline T abs(T x) {
 	return x < 0 ? -x : x;
 }
 template<typename T> void swap(T& a, T& b) {
