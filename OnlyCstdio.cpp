@@ -71,3 +71,24 @@ template<typename T> inline void memcpy(T* x, T* s, int siv) {
 		x[i] = s[i];
 	}
 }
+template<typename T> inline void discretization(T* l, T* r) {
+	struct dis {
+		T val;
+		int id;
+		bool operator < (const dis sec) const {
+			return val < sec.val;
+		}
+	} dis[r - l];
+	for (T* i = l; i != r; i++) {
+		dis[i - l].val = *i;
+		dis[i - l].id = i - l;
+	}
+	sort(dis, dis + (r - l));
+	int muti = 0;
+	for (T* i = l; i != r; i++) {
+		if (i != l && dis[i - l].val == dis[(i - l) - 1].val) {
+			muti++;
+		}
+		*i = dis[i - l].id - muti;
+	}
+}
