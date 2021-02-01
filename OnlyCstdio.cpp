@@ -92,3 +92,54 @@ template<typename T> inline void discretization(T* l, T* r) {
 		*i = dis[i - l].id - muti;
 	}
 }
+
+template<typename T> class priority_queue {
+	private:
+		T v[MAXN], n;
+		void pushup(int i) {
+			T tmp = v[i];
+			while (tmp < v[i >> 1]) {
+				v[i] = v[i >> 1];
+				i >>= 1;
+			}
+			v[i] = tmp;
+		}
+		void pushdown(int i) {
+			T tmp = v[i];
+			while ((i << 1) <= n) {
+				int ch = i << 1;
+				if (ch < n && v[ch + 1] < v[ch]) {
+					ch++;
+				}
+				if (tmp > v[ch]) {
+					v[i] = v[ch];
+					i = ch;
+				}
+				else break;
+			}
+			v[i] = tmp;
+		}
+	public:
+		priority_queue() {
+			v[0] = -0x3f3f3f3f;
+			n = 0;
+		}
+		void clear() {
+			v[0] = -0x3f3f3f3f;
+			n = 0;
+		}
+		void push(T x) {
+			v[++n] = x;
+			pushup(n);
+		}
+		void pop() {
+			swap(v[1], v[n--]);
+			pushdown(1);
+		} 
+		T top() {
+			return v[1];
+		}
+		bool empty() {
+			return n == 0;
+		}
+};
