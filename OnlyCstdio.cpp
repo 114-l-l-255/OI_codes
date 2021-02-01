@@ -229,4 +229,11 @@ template<typename T> class queue {
 		T back() {
 			return v[r];
 		}
+		int size() {
+			return r - l + 1; 
+		}
+		bool empty() {
+			return r < l;
+		}
+};	}
 }
