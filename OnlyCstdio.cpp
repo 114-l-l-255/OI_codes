@@ -1,4 +1,5 @@
 #include <cstdio>
+
 template<typename T> void sort(T *l, T *r) {
 	if (l == r - 1) return;
 	int mid = (r - l) >> 1;
@@ -25,20 +26,25 @@ template<typename T> void sort(T *l, T *r) {
 		*i = *j;
 	}
 }
+
 template<typename T> inline T max(T a, T b) {
 	return a > b ? a : b;
 }
+
 template<typename T> inline T min(T a, T b) {
 	return a < b ? a : b;
 }
+
 template<typename T> inline T abs(T x) {
 	return x < 0 ? -x : x;
 }
+
 template<typename T> void swap(T& a, T& b) {
 	T t = a;
 	a = b;
 	b = t;
 }
+
 template<typename T> inline void memset(T* s, int sss, int ss) {
 	T c = 0;
 	for (int i = 0; i < sizeof(T); i++) {
@@ -50,6 +56,7 @@ template<typename T> inline void memset(T* s, int sss, int ss) {
 		s[i] = c;
 	}
 }
+
 template<typename T> void reverse(T* a, T* b) {
 	b--;
 	while (1) {
@@ -60,17 +67,20 @@ template<typename T> void reverse(T* a, T* b) {
 		if (a == b) return;
 	}
 }
+
 template<typename T> inline int strlen(T* s) {
 	for (int i = 0; ; i++) {
 		if (s[i] == 0) return i;
 	}
 }
+
 template<typename T> inline void memcpy(T* x, T* s, int siv) {
 	int ss = siv / sizeof(T);
 	for (int i = 0; i < ss; i++) {
 		x[i] = s[i];
 	}
 }
+
 template<typename T> inline void discretization(T* l, T* r) {
 	struct dis {
 		T val;
@@ -141,5 +151,46 @@ template<typename T> class priority_queue {
 		}
 		bool empty() {
 			return n == 0;
+		}
+};
+
+const int mod = Hash_Size;
+template<typename T1, typename T2> class hashset {
+	//T1只支持'int'!
+	private:
+		struct _slink {
+			_slink *nxt;
+			T2 val;
+			int As;
+		};
+		_slink *h[mod];
+	public:
+		hashset() {
+			for (int i = 0; i < mod; i++) h[i] = NULL;
+		}
+		void clear() {
+			for (int i = 0; i < mod; i++) h[i] = NULL;
+		}
+		void change(int x, T2 id) {
+			int now = x % mod;
+			if (now < 0) now += mod;
+			for (_slink *i = h[now]; i != NULL; i = i->nxt)
+				if (i->val == x) {
+					i->As = id;
+					return;
+				}
+			_slink *p = new _slink;
+			p->nxt = h[now];
+			h[now] = p;
+			p->val = x;
+			p->As = id;
+			return;
+		}
+		T2 find(int x) {
+			int now = x % mod;
+			if (now < 0) now += mod;
+			for (_slink *i = h[now]; i != NULL; i = i->nxt)
+				if (i->val == x) return i->As;
+			return 0;
 		}
 };
