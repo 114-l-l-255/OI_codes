@@ -154,7 +154,7 @@ template<typename T> class priority_queue {
 		}
 };
 
-const int mod = Hash_Size;
+const int mod = 114515;
 template<typename T1, typename T2> class hashset {
 	//T1只支持'int'!
 	private:
@@ -192,5 +192,17 @@ template<typename T1, typename T2> class hashset {
 			for (_slink *i = h[now]; i != NULL; i = i->nxt)
 				if (i->val == x) return i->As;
 			return 0;
+		}
+		void copy(hashset<T1, T2> sec) {
+			//sec -> this
+			for (int ii = 0; ii < mod; ii++) {
+				for (_slink *i = sec.h[ii]; i != NULL; i = i->nxt) {
+					_slink *p = new _slink;
+					p->nxt = h[ii];
+					h[ii] = p;
+					p->val = i->val;
+					p->As = i->As;
+				}
+			}
 		}
 };
