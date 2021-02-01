@@ -8,8 +8,6 @@ And here is some note for problems
 
 **have fun!**
 
-~~**I'm a chinese**~~
-
 ## ACAM
 
 https://docs.qq.com/doc/DSU51Y1FCR1ZaaHJO
