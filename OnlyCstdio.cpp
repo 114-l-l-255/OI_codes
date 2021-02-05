@@ -258,7 +258,11 @@ template<typename T1, typename T2> class pair {
 			second = sec.second;
 			return *this;
 		}
-		
+		pair<T1, T2> operator = (int sec) {
+			first = sec;
+			second = sec;
+			return *this;
+		}
 };
 
 template<typename T1, typename T2> pair<T1, T2> make_pair(T1 a, T2 b) {
