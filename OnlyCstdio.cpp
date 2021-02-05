@@ -235,5 +235,4 @@ template<typename T> class queue {
 		bool empty() {
 			return r < l;
 		}
-};	}
-}
+};
