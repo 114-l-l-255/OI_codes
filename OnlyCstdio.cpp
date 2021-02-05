@@ -236,3 +236,24 @@ template<typename T> class queue {
 			return r < l;
 		}
 };
+
+
+template<typename T1, typename T2> class pair {
+	public:
+		T1 first; T2 second;
+		pair() {
+			first = 0;
+			second = 0;
+		}
+		pair(T1 a, T2 b) {
+			first = a;
+			second = b;
+		}
+		bool operator < (pair<T1, T2> sec) {
+			return first == sec.first ? second < sec.second : first < sec.first;
+		}
+};
+
+template<typename T1, typename T2> pair<T1, T2> make_pair(T1 a, T2 b) {
+	return pair<T1, T2>(a, b);
+}
