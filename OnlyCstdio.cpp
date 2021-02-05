@@ -209,7 +209,7 @@ template<typename T1, typename T2> class hashset {
 
 template<typename T> class queue {
 	private:
-		int v[MAXN], l, r;
+		T v[MAXN], l, r;
 	public:
 		queue() {
 			l = 0, r = -1;
