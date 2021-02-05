@@ -209,7 +209,8 @@ template<typename T1, typename T2> class hashset {
 
 template<typename T> class queue {
 	private:
-		T v[MAXN], l, r;
+		T v[MAXN];
+		int l, r;
 	public:
 		queue() {
 			l = 0, r = -1;
@@ -252,6 +253,12 @@ template<typename T1, typename T2> class pair {
 		bool operator < (pair<T1, T2> sec) {
 			return first == sec.first ? second < sec.second : first < sec.first;
 		}
+		pair<T1, T2> operator = (pair<T1, T2> sec) {
+			first = sec.first;
+			second = sec.second;
+			return *this;
+		}
+		
 };
 
 template<typename T1, typename T2> pair<T1, T2> make_pair(T1 a, T2 b) {
