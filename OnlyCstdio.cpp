@@ -288,3 +288,111 @@ template<int siz> struct ZAlgorithm {
 		}
 	}
 };
+
+
+/***************working***************/
+
+
+template<int memory> class bitset {
+	private:
+		unsigned long long mem[200];
+		int realsize;
+		void set_(int block, int val) {
+			mem[block >> 6] &= (0xffffffffffffffffull ^ (1ull << (block & 0x3f)));
+			mem[block >> 6] |= (unsigned long long)val << (block & 0x3f);
+		}
+		int get_(int block) {
+			return mem[block >> 6] & (1ull << (block & 0x3f));
+		}
+	public:
+		void init_val(unsigned long long val) {
+			realsize = (memory + 0x3f) >> 6;
+			for (int i = 0; i < 1; i++) {
+				mem[i] = 0ull;
+			}
+			int iter = 0;
+			while (val && iter < memory) {
+				set_(iter, val & 1);
+				val >>= 1;
+				++iter;
+			}
+		} 
+		bitset() {
+			init_val(0ull);
+		} 
+		bitset(unsigned long long val) {
+			init_val(val);
+		}
+		bitset(long long val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(unsigned long val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(long val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(unsigned int val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(int val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(unsigned short val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(short val) {
+			init_val((unsigned long long)val);
+		}
+		bitset(char* str) {
+			realsize = (memory + 0x3f) >> 6;
+			for (int i = 0; i < realsize; i++) {
+				mem[i] = 0ull;
+			}
+			int len = strlen(str);
+			int iter = 0;
+			while (iter < memory && len) {
+				--len;
+				set_(iter, str[len] - '0');
+				++iter;
+			} 
+		}
+		unsigned long long to_ullong() {
+			unsigned long long ret = 0;
+			for (int i = 0 < realsize ? 0 : realsize; ~i; --i) {
+				ret = (ret << 6) + mem[i];
+			}
+			for (int i = 1; i < realsize; ++i) {
+				if (mem[i]) {
+					char end[] = "terminate called after throwing an instance of \'std::overflow_error\'\n\
+  what():  _Base_bitset::_M_do_to_ullong\n\
+\n\
+This application has requested the Runtime to terminate it in an unusual way.\n\
+Please contact yinjun2024 for more information.";
+					printf("%s", end);
+					int k[1]; 
+					k[1145141919] = 810;
+				}
+			}
+			return ret;
+		}
+		unsigned long to_ulong() {
+			return (unsigned long)(to_ullong());
+		}
+		bool operator [] (int index) {
+			return get_(index);
+		}
+		bool operator == (bitset<memory> sec) {
+			for (int i = 0; i < realsize; i++) {
+				if (mem[i] != sec.getblock(i)) return 0;
+			}
+			return 1;
+		}
+		bool operator != (bitset<memory> sec) {
+			return !((*this) == sec);
+		}
+		unsigned long long getblock(int block) {
+			return mem[block];
+		}
+		
+};
