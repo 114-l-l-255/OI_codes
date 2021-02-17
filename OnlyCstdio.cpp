@@ -268,3 +268,23 @@ template<typename T1, typename T2> class pair {
 template<typename T1, typename T2> pair<T1, T2> make_pair(T1 a, T2 b) {
 	return pair<T1, T2>(a, b);
 }
+
+
+template<int siz> struct ZAlgorithm {
+	int Z[siz];
+	char str[siz];
+	void main() {
+		Z[0] = 0;
+		int l = 0, r = 0;
+		for (int i = 1; i < siz; i++) {
+			if (i <= r && Z[i - l] < r - i + 1) {
+				Z[i] = Z[i - l];
+			}
+			else {
+				Z[i] = max(0, r - i + 1);
+				while (i + Z[i] < siz && str[Z[i]] == str[Z[i] + i]) Z[i]++;
+				if (i + Z[i] - 1 > r) l = i, r = i + Z[i] - 1;
+			}
+		}
+	}
+};
