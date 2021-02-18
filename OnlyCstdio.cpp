@@ -294,20 +294,20 @@ template<int siz> struct ZAlgorithm {
 
 
 template<int memory> class bitset {
-	private:
-		unsigned long long mem[200];
+	public:
+		unsigned long long mem[(memory + 0x3f) >> 6];
 		int realsize;
 		void set_(int block, int val) {
 			mem[block >> 6] &= (0xffffffffffffffffull ^ (1ull << (block & 0x3f)));
 			mem[block >> 6] |= (unsigned long long)val << (block & 0x3f);
 		}
 		int get_(int block) {
-			return mem[block >> 6] & (1ull << (block & 0x3f));
+			return (int)((bool)(mem[block >> 6] & (1ull << (block & 0x3f))));
 		}
 	public:
 		void init_val(unsigned long long val) {
 			realsize = (memory + 0x3f) >> 6;
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < realsize; i++) {
 				mem[i] = 0ull;
 			}
 			int iter = 0;
@@ -322,27 +322,6 @@ template<int memory> class bitset {
 		} 
 		bitset(unsigned long long val) {
 			init_val(val);
-		}
-		bitset(long long val) {
-			init_val((unsigned long long)val);
-		}
-		bitset(unsigned long val) {
-			init_val((unsigned long long)val);
-		}
-		bitset(long val) {
-			init_val((unsigned long long)val);
-		}
-		bitset(unsigned int val) {
-			init_val((unsigned long long)val);
-		}
-		bitset(int val) {
-			init_val((unsigned long long)val);
-		}
-		bitset(unsigned short val) {
-			init_val((unsigned long long)val);
-		}
-		bitset(short val) {
-			init_val((unsigned long long)val);
 		}
 		bitset(char* str) {
 			realsize = (memory + 0x3f) >> 6;
@@ -359,12 +338,18 @@ template<int memory> class bitset {
 		}
 		unsigned long long to_ullong() {
 			unsigned long long ret = 0;
+			if (memory < 0x40) {
+				ret = mem[0] & ((1ull << memory) - 1);
+				return ret;
+			}
 			for (int i = 0 < realsize ? 0 : realsize; ~i; --i) {
 				ret = (ret << 6) + mem[i];
 			}
 			for (int i = 1; i < realsize; ++i) {
 				if (mem[i]) {
-					char end[] = "terminate called after throwing an instance of \'std::overflow_error\'\n\
+					printf("%llu %d\n", mem[i], i);
+					char end[] = "\
+terminate called after throwing an instance of \'std::overflow_error\'\n\
   what():  _Base_bitset::_M_do_to_ullong\n\
 \n\
 This application has requested the Runtime to terminate it in an unusual way.\n\
@@ -379,20 +364,91 @@ Please contact yinjun2024 for more information.";
 		unsigned long to_ulong() {
 			return (unsigned long)(to_ullong());
 		}
-		bool operator [] (int index) {
+		int operator [] (int index) {
 			return get_(index);
 		}
 		bool operator == (bitset<memory> sec) {
 			for (int i = 0; i < realsize; i++) {
-				if (mem[i] != sec.getblock(i)) return 0;
+				if (mem[i] != sec.mem[i]) return 0;
 			}
 			return 1;
 		}
 		bool operator != (bitset<memory> sec) {
 			return !((*this) == sec);
 		}
-		unsigned long long getblock(int block) {
-			return mem[block];
+		bitset<memory> operator ~ (void) {
+			bitset<memory> ans;
+			for (int i = 0; i < realsize - 1; i++) {
+				ans.mem[i] = ~mem[i];
+			}
+			if (memory == (realsize - 1) << 6) return ans;
+			int ind = ((1ull << (memory - (realsize - 1 << 6))) - 1);
+			ans.mem[realsize - 1] = mem[realsize - 1] ^ ind;
+			return ans;
 		}
-		
+		bitset<memory> operator << (unsigned long long x) {
+			bitset<memory> ans;
+			int a = x >> 6, b = x & 0x3f;
+			for (int i = 0; ; i++) {
+				if (realsize - a - 2 < i) break;
+				ans.mem[i + a] |= mem[i] << b;
+				if (realsize - a - 2 <= i) break;
+				if (b != 0) ans.mem[i + a + 1] |= mem[i] >> (0x40 - b);
+			}
+			if ((memory & 0x3f) <= b) {
+				unsigned long long tmp;
+				if (realsize - a - 2 >= 0 && b != 0) {
+					tmp = mem[realsize - a - 2] >> (0x40 - b);
+					tmp = tmp & (1ull << (memory & 0x3f));
+					ans.mem[realsize - 1] |= tmp;
+				}
+			}
+			else {
+				unsigned long long tmp;
+				if (realsize - a - 2 >= 0 && b != 0) {
+					tmp = mem[realsize - a - 2] >> (0x40 - b);
+					ans.mem[realsize - 1] |= tmp;
+				}
+				tmp = mem[realsize - a - 1] & (1ull << (memory & 0x3f - b));
+				tmp = tmp << b;
+				ans.mem[realsize - 1] |= tmp;
+			}
+			return ans;
+		}
+		void set(int a, int b = 1) {
+			set_(a, b);
+		}
 };
+template<int memory> bitset<memory> operator ^ (bitset<memory> fst, bitset<memory> sec) {
+	bitset<memory> s;
+	s = fst;
+	s ^= sec;
+	return s;
+}
+template<int memory> void operator ^= (bitset<memory> &fst, bitset<memory> sec) {
+	for (int i = 0; i < fst.realsize; i++) {
+		fst.mem[i] ^= sec.mem[i];
+	}
+}
+template<int memory> bitset<memory> operator & (bitset<memory> fst, bitset<memory> sec) {
+	bitset<memory> s;
+	s = fst;
+	s &= sec;
+	return s;
+}
+template<int memory> void operator &= (bitset<memory> &fst, bitset<memory> sec) {
+	for (int i = 0; i < fst.realsize; i++) {
+		fst.mem[i] &= sec.mem[i];
+	}
+}
+template<int memory> bitset<memory> operator | (bitset<memory> fst, bitset<memory> sec) {
+	bitset<memory> s;
+	s = fst;
+	s |= sec;
+	return s;
+}
+template<int memory> void operator |= (bitset<memory> &fst, bitset<memory> sec) {
+	for (int i = 0; i < fst.realsize; i++) {
+		fst.mem[i] |= sec.mem[i];
+	}
+}
