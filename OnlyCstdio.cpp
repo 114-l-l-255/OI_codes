@@ -452,3 +452,20 @@ template<int memory> void operator |= (bitset<memory> &fst, bitset<memory> sec) 
 		fst.mem[i] |= sec.mem[i];
 	}
 }
+
+void srand(unsigned long long x) {
+	rnd[0] = x;
+	for (int i = 0; i < (x & 0xff) + 100; i++) {
+		unsigned long long r = rnd[0] + rnd[1] + rnd[2] + rnd[0] * rnd[2] + 114514;
+		rnd[2] = rnd[1];
+		rnd[1] = rnd[0];
+		rnd[0] = r;
+	}
+}
+unsigned long long rand() {
+	unsigned long long r = rnd[0] + rnd[1] + rnd[2] + rnd[0] * rnd[2] + 114514;
+	rnd[2] = rnd[1];
+	rnd[1] = rnd[0];
+	rnd[0] = r;
+	return rnd[0];
+}
