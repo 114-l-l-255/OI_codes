@@ -469,3 +469,120 @@ unsigned long long rand() {
 	rnd[0] = r;
 	return rnd[0];
 }
+
+class fhqTreap {
+	struct TreeNode {
+		int sz, val, pty, l, r;
+	} Node[MAXN];
+	int stack[MAXN], tp, cnt, root;
+	int Newnode(int val) {
+		int now = tp ? stack[tp--] : ++cnt;
+		Node[now].sz = 1;
+		Node[now].val = val;
+		Node[now].pty = (int)(rand() & 0x7fffffff);
+		return now;
+	}
+	void pushup(int u) {
+		Node[u].sz = Node[Node[u].l].sz + Node[Node[u].r].sz + 1;
+	}
+	void Split(int u, int &l, int &r, int val) {
+		if (u == 0) {
+			l = 0;
+			r = 0;
+			return;
+		}
+		if (Node[u].val <= val) {
+			l = u;
+			Split(Node[l].r, Node[l].r, r, val);
+		}
+		else {
+			r = u;
+			Split(Node[r].l, l, Node[r].l, val);
+		}
+		pushup(u);
+	}
+	void Split_sz(int u, int &l, int &r, int sz) {
+		if (u == 0) {
+			l = 0;
+			r = 0;
+			return;
+		}
+		if (Node[Node[u].l].sz + 1 <= sz) {
+			l = u;
+			Split_sz(Node[u].r, Node[u].r, r, sz - Node[Node[u].l].sz - 1);
+		}
+		else {
+			r = u;
+			Split_sz(Node[u].l, l, Node[u].l, sz);
+		}
+		pushup(u);
+	}
+	void Merge(int &u, int l, int r) {
+		if (l == 0 || r == 0) {
+			u = l | r;
+			return;
+		}
+		if (Node[l].pty > Node[r].pty) {
+			u = l;
+			Merge(Node[u].r, Node[u].r, r);
+		}
+		else {
+			u = r;
+			Merge(Node[u].l, l, Node[u].l);
+		}
+		pushup(u);
+	}
+	int Find(int u, int val) {
+		if (u == 0) return 0;
+		if (Node[u].val == val) return u;
+		if (Node[u].val > val) return Find(Node[u].l, val);
+		else return Find(Node[u].r, val);
+	}
+	void Insert(int val) {
+		int l, r;
+		Split(root, l, r, val);
+		Merge(l, l, Newnode(val));
+		Merge(root, l, r);
+	}
+	void Delete(int val) {
+		int a, b;
+		Split(root, root, a, val);
+		Split(root, root, b, val - 1);
+		Merge(b, Node[b].l, Node[b].r);
+		Merge(root, root, b);
+		Merge(root, root, a);
+	}
+	int Rank(int val) {
+		int x, y;
+		Split(root, x, y, val - 1);
+		int res = Node[x].sz + 1;
+		Merge(root, x, y);
+		return res;
+	}
+	int Kth(int k) {
+		int rt = root;
+		while (1) {
+			if (k <= Node[Node[rt].l].sz) rt = Node[rt].l;
+			else if (k == Node[Node[rt].l].sz + 1) return Node[rt].val;
+			else k -= Node[Node[rt].l].sz + 1, rt = Node[rt].r;
+		}
+	}
+	int Pre(int val) {
+		int x, y;
+		Split(root, x, y, val - 1);
+		int tmp = x;
+		while (Node[tmp].r) tmp = Node[tmp].r;
+		int ans = Node[tmp].val;
+		Merge(root, x, y);
+		return ans;
+	}
+	int Nxt(int val) {
+		int x, y;
+		Split(root, x, y, val);
+		int tmp = y;
+		while (Node[tmp].l) tmp = Node[tmp].l;
+		int ans = Node[tmp].val;
+		Merge(root, x, y);
+		return ans;
+	}
+};
