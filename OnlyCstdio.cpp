@@ -586,3 +586,125 @@ class fhqTreap {
 		return ans;
 	}
 };
+
+class Splay {
+		struct TreeNode {
+			int val, num, sz, son[2], fa;
+		} Node[MAXN];
+		int root, tot;
+		int Newnode(int val) {
+			Node[++tot].fa = 0;
+			Node[tot].num = 1;
+			Node[tot].son[0] = Node[tot].son[1] = 0;
+			Node[tot].sz = 1;
+			Node[tot].val = val;
+			return tot;
+		}
+		bool get(int x) {
+			return x == Node[Node[x].fa].son[1];
+		}
+		void clear(int x) {
+			Node[x].son[0] = Node[x].son[1] = Node[x].fa = Node[x].val = Node[x].sz = Node[x].num = 0;
+		}
+		void pushup(int x) {
+			Node[x].sz = Node[Node[x].son[0]].sz + Node[Node[x].son[1]].sz + Node[x].num;
+		}
+		void Rotate(int x) {
+			int y = Node[x].fa, z = Node[y].fa, son = get(x);
+			Node[y].son[son] = Node[x].son[son ^ 1];
+			if (Node[x].son[son ^ 1]) Node[Node[x].son[son ^ 1]].fa = y;
+			Node[x].son[son ^ 1] = y;
+			Node[y].fa = x;
+			Node[x].fa = z;
+			if (z) Node[z].son[y == Node[z].son[1]] = x;
+			pushup(y);
+			pushup(x);
+		}
+		void splay(int x, int fa = 0) {
+			for (int f = Node[x].fa; f = Node[x].fa, f != fa; Rotate(x)) {
+				if (Node[f].fa != fa) {
+					Rotate(get(x) == get(f) ? f : x);
+				}
+			}
+			root = x;
+		}
+	public:
+		void insert(int val) {
+			if (!root) {
+				Node[++tot].val = val;
+				Node[tot].num = 1;
+				root = tot;
+				pushup(root);
+				return;
+			}
+			int cur = root, f = 0;
+			while (1) {
+				if (Node[cur].val == val) {
+					Node[cur].num++;
+					pushup(cur);
+					pushup(f);
+					splay(cur);
+					break;
+				}
+				f = cur;
+				cur = Node[cur].son[Node[cur].val < val];
+				if (!cur) {
+					Node[++tot].val = val;
+					Node[tot].num = 1;
+					Node[tot].fa = f;
+					Node[f].son[Node[f].val < val] = tot;
+					pushup(tot);
+					pushup(f);
+					splay(tot);
+					break;
+				}
+			}
+		}
+		int Rank(int val) {
+			int res = 0, cur = root;
+			while (1) {
+				if (val < Node[cur].val) cur = Node[cur].son[0];
+				else {
+					res += Node[Node[cur].son[0]].sz;
+					if (val == Node[cur].val) {
+						splay(cur);
+						return res + 1;
+					}
+					res += Node[cur].num;
+					cur = Node[cur].son[1];
+				}
+			}
+		}
+		int Kth(int k) {
+			int cur = root;
+			while (1) {
+				if (Node[cur].son[0] && k <= Node[Node[cur].son[0]].sz) {
+					cur = Node[cur].son[0];
+				}
+				else {
+					k -= Node[cur].num + Node[Node[cur].son[0]].sz;
+					if (k <= 0) {
+						splay(cur);
+						return Node[cur].val;
+					}
+					cur = Node[cur].son[1];
+				}
+			}
+		}
+		int pre(int x) {
+			Insert(x);
+			int cur = Node[root].son[0];
+			while (Node[cur].son[1]) cur = Node[cur].son[1];
+			Delete(x);
+			splay(cur);
+			return cur;
+		}
+		int nxt(int x) {
+			Insert(x);
+			int cur = Node[root].son[1];
+			while (Node[cur].son[0]) cur = Node[cur].son[0];
+			Delete(x);
+			splay(cur);
+			return cur;
+		}
+};
