@@ -289,10 +289,6 @@ template<int siz> struct ZAlgorithm {
 	}
 };
 
-
-/***************working***************/
-
-
 template<int memory> class bitset {
 	public:
 		unsigned long long mem[(memory + 0x3f) >> 6];
@@ -706,5 +702,45 @@ class Splay {
 			Delete(x);
 			splay(cur);
 			return cur;
+		}
+};
+
+
+template<typename T> inline void memmove(T *fst, T *sec, int size) {
+	int len = size / sizeof(T);
+	T *tmp = new T(len);
+	T *ttmp = tmp;
+	for (int i = 0; i < len; i++) {
+		*(tmp++) = *(sec++);
+	}
+	tmp = ttmp;
+	for (int i = 0; i < len; i++) {
+		*(fst++) = *(tmp++);
+	}
+	delete ttmp;
+}
+
+template<typename T> class vector {
+	private:
+		T *iter;
+		int len, tp;
+	public:
+		vector() {
+			iter = new T;
+			len = 1;
+		}
+		void pushback(T x) {
+			if (tp == len) {
+				T *old = iter;
+				iter = new T(len << 1);
+				memmove(iter, old, len * sizeof(T));
+				delete [] old;
+				tp = len;
+				len <<= 1;
+			}
+			*(iter + (tp++)) = x;
+		}
+		T operator [] (int index) {
+			return *(iter + index);
 		}
 };
