@@ -706,18 +706,19 @@ class Splay {
 };
 
 
+
 template<typename T> inline void memmove(T *fst, T *sec, int size) {
 	int len = size / sizeof(T);
-	T *tmp = new T(len);
+	T *tmp = new T[len];
 	T *ttmp = tmp;
 	for (int i = 0; i < len; i++) {
-		*(tmp++) = *(sec++);
+		*(ttmp++) = *(sec++);
 	}
-	tmp = ttmp;
+	ttmp = tmp;
 	for (int i = 0; i < len; i++) {
-		*(fst++) = *(tmp++);
+		*(fst++) = *(ttmp++);
 	}
-	delete ttmp;
+	delete[] tmp;
 }
 
 template<typename T> class vector {
@@ -729,13 +730,15 @@ template<typename T> class vector {
 			iter = new T;
 			len = 1;
 		}
+		~vector() {
+			delete[] iter;
+		}
 		void pushback(T x) {
 			if (tp == len) {
 				T *old = iter;
-				iter = new T(len << 1);
+				iter = new T[len << 1];
 				memmove(iter, old, len * sizeof(T));
 				delete [] old;
-				tp = len;
 				len <<= 1;
 			}
 			*(iter + (tp++)) = x;
