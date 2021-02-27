@@ -599,10 +599,8 @@ class Splay {
 			Node[x].son[0] = Node[x].son[1] = Node[x].fa = Node[x].val = Node[x].sz = Node[x].num = 0;
 		}
 		void pushup(int x) {
-//			printf("pushup %d ", x);
 			Node[x].sz = Node[Node[x].son[0]].sz + Node[Node[x].son[1]].sz + Node[x].num;
 			Node[x].sss = Node[Node[x].son[0]].sss ^ Node[Node[x].son[1]].sss ^ Node[x].val;
-//			printf("%d %d %d %d %d\n", Node[x].sss, Node[x].son[0], Node[x].son[1], Node[Node[x].son[0]].sss, Node[Node[x].son[1]].sss);
 		}
 		void pushdown(int x) {
 			if (Node[x].r) {
@@ -621,7 +619,6 @@ class Splay {
 			if (nry) Node[z].son[y == Node[z].son[1]] = x;
 			pushup(y);
 			pushup(x);
-//			if (nroot(z)) pushup(z);
 		}
 		void splay(int x, int fa = 0) {
 			pushall(x);
@@ -632,7 +629,6 @@ class Splay {
 			}
 		}
 		void pushall(int x) {
-//			printf("%d %d\n",x,Node[x].fa);
 			if (nroot(x)) pushall(Node[x].fa);
 			pushdown(x);
 		}
@@ -755,7 +751,6 @@ class Splay {
 		int Access(int x) {
 			int p;
 			for (p = 0; x; x = Node[p = x].fa) {
-//				printf("SHIK:%d\n",Node[1].fa);
 				splay(x);
 				Node[x].son[1] = p;
 				pushup(x);
