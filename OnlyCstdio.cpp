@@ -584,18 +584,14 @@ class fhqTreap {
 };
 
 class Splay {
+	public:
 		struct TreeNode {
 			int val, num, sz, son[2], fa;
+			int sss;
+			bool r;
 		} Node[MAXN];
 		int root, tot;
-		int Newnode(int val) {
-			Node[++tot].fa = 0;
-			Node[tot].num = 1;
-			Node[tot].son[0] = Node[tot].son[1] = 0;
-			Node[tot].sz = 1;
-			Node[tot].val = val;
-			return tot;
-		}
+		bool nroot(int x) {return Node[Node[x].fa].son[1] == x || Node[Node[x].fa].son[0] == x;}
 		bool get(int x) {
 			return x == Node[Node[x].fa].son[1];
 		}
@@ -603,29 +599,45 @@ class Splay {
 			Node[x].son[0] = Node[x].son[1] = Node[x].fa = Node[x].val = Node[x].sz = Node[x].num = 0;
 		}
 		void pushup(int x) {
+//			printf("pushup %d ", x);
 			Node[x].sz = Node[Node[x].son[0]].sz + Node[Node[x].son[1]].sz + Node[x].num;
+			Node[x].sss = Node[Node[x].son[0]].sss ^ Node[Node[x].son[1]].sss ^ Node[x].val;
+//			printf("%d %d %d %d %d\n", Node[x].sss, Node[x].son[0], Node[x].son[1], Node[Node[x].son[0]].sss, Node[Node[x].son[1]].sss);
+		}
+		void pushdown(int x) {
+			if (Node[x].r) {
+				if (Node[x].son[0]) Node[Node[x].son[0]].son[0] ^= Node[Node[x].son[0]].son[1] ^= Node[Node[x].son[0]].son[0] ^= Node[Node[x].son[0]].son[1], Node[Node[x].son[0]].r ^= 1;
+				if (Node[x].son[1]) Node[Node[x].son[1]].son[0] ^= Node[Node[x].son[1]].son[1] ^= Node[Node[x].son[1]].son[0] ^= Node[Node[x].son[1]].son[1], Node[Node[x].son[1]].r ^= 1;
+				Node[x].r = 0;
+			}
 		}
 		void Rotate(int x) {
-			int y = Node[x].fa, z = Node[y].fa, son = get(x);
+			int y = Node[x].fa, z = Node[y].fa, son = get(x),nry = nroot(y);
 			Node[y].son[son] = Node[x].son[son ^ 1];
 			if (Node[x].son[son ^ 1]) Node[Node[x].son[son ^ 1]].fa = y;
 			Node[x].son[son ^ 1] = y;
 			Node[y].fa = x;
 			Node[x].fa = z;
-			if (z) Node[z].son[y == Node[z].son[1]] = x;
+			if (nry) Node[z].son[y == Node[z].son[1]] = x;
 			pushup(y);
 			pushup(x);
+//			if (nroot(z)) pushup(z);
 		}
 		void splay(int x, int fa = 0) {
-			for (int f = Node[x].fa; f = Node[x].fa, f != fa; Rotate(x)) {
-				if (Node[f].fa != fa) {
-					Rotate(get(x) == get(f) ? f : x);
-				}
+			pushall(x);
+			while (nroot(x)) {
+				int f = Node[x].fa;
+				if (nroot(f)) get(f) == get(x) ? Rotate(f) : Rotate(x);
+				Rotate(x);
 			}
-			root = x;
+		}
+		void pushall(int x) {
+//			printf("%d %d\n",x,Node[x].fa);
+			if (nroot(x)) pushall(Node[x].fa);
+			pushdown(x);
 		}
 	public:
-		void insert(int val) {
+		void Insert(int val) {
 			if (!root) {
 				Node[++tot].val = val;
 				Node[tot].num = 1;
@@ -656,6 +668,31 @@ class Splay {
 				}
 			}
 		}
+		void Delete(int val) {
+			Rank(val);
+			if (Node[root].num > 1) {
+				Node[root].num--;
+				pushup(root);
+				return;
+			}
+			if (!Node[root].son[0] && !Node[root].son[1]) {
+				clear(root);
+				root = 0;
+				return;
+			}
+			if (!Node[root].son[0] || !Node[root].son[1]) {
+				int cur = root, chk = !Node[root].son[1] ? 0 : 1;
+				root = Node[root].son[chk];
+				Node[root].fa = 0;
+				clear(cur);
+				return;
+			}
+			int cur = root, x = Pre();
+			Node[Node[cur].son[1]].fa = x;
+			Node[x].son[1] = Node[cur].son[1];
+			clear(cur);
+			pushup(root);
+		}
 		int Rank(int val) {
 			int res = 0, cur = root;
 			while (1) {
@@ -676,8 +713,7 @@ class Splay {
 			while (1) {
 				if (Node[cur].son[0] && k <= Node[Node[cur].son[0]].sz) {
 					cur = Node[cur].son[0];
-				}
-				else {
+				} else {
 					k -= Node[cur].num + Node[Node[cur].son[0]].sz;
 					if (k <= 0) {
 						splay(cur);
@@ -687,23 +723,74 @@ class Splay {
 				}
 			}
 		}
-		int pre(int x) {
-			Insert(x);
+		int Pre() {
 			int cur = Node[root].son[0];
 			while (Node[cur].son[1]) cur = Node[cur].son[1];
-			Delete(x);
 			splay(cur);
 			return cur;
 		}
-		int nxt(int x) {
+		int Pre_(int x) {
 			Insert(x);
+			int cur = Pre();
+			Delete(x);
+			return Node[cur].val;
+		}
+		int Nxt() {
 			int cur = Node[root].son[1];
 			while (Node[cur].son[0]) cur = Node[cur].son[0];
-			Delete(x);
 			splay(cur);
 			return cur;
 		}
-};
+		int Nxt_(int x) {
+			Insert(x);
+			int cur = Nxt();
+			Delete(x);
+			return Node[cur].val;
+		}
+		Splay() {
+			for (int i = 0; i < MAXN; i++) {
+				Node[i].num = 1;
+			}
+		}
+		int Access(int x) {
+			int p;
+			for (p = 0; x; x = Node[p = x].fa) {
+//				printf("SHIK:%d\n",Node[1].fa);
+				splay(x);
+				Node[x].son[1] = p;
+				pushup(x);
+			}
+			return p;
+		}
+		void makeroot(int x) {
+			Access(x);
+			splay(x);
+			Node[x].son[0] ^= Node[x].son[1] ^= Node[x].son[0] ^= Node[x].son[1], Node[x].r ^= 1;
+		}
+		int findroot(int x) {
+			Access(x);
+			splay(x);
+			while (Node[x].son[0]) pushdown(x), x = Node[x].son[0];
+			splay(x);
+			return x;
+		}
+		void split(int x, int y) {
+			makeroot(x);
+			Access(y);
+			splay(y);
+		}
+		void link(int x, int y) {
+			makeroot(x);
+			if (findroot(y) != x) Node[x].fa = y;
+		}
+		void cut(int x, int y) {
+			makeroot(x);
+			if (findroot(y) == x && Node[y].fa == x && Node[y].son[0] == 0) {
+				Node[y].fa = Node[x].son[1] = 0;
+				pushup(x);
+			}
+		}
+}
 
 
 
