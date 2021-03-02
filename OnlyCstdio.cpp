@@ -785,6 +785,15 @@ class Splay {
 				pushup(x);
 			}
 		}
+		void cut_fa(int x) {
+			Access(x);
+			splay(x);
+			Node[x].son[0] = Node[Node[x].son[0]].fa = 0;
+		}
+		int lca(int u, int v) {
+			Access(u);
+			return Access(v);
+		}
 }
 
 
