@@ -1,5 +1,69 @@
 #include <cstdio>
 
+// Warning: There are some bugs in it, you can fix them to use
+
+// Now you can just use this code to get faster thing WITHOUT ANYTHING
+
+// Like ... <cstring>:
+
+template<typename T> inline void memset(T* s, int sss, int ss) {
+	T c = 0;
+	for (int i = 0; i < sizeof(T); i++) {
+		c *= 128;
+		c += sss;
+	}
+	int cc = ss / sizeof(T);
+	for (int i = 0; i < cc; i++) {
+		s[i] = c;
+	}
+}
+template<typename T> inline int strlen(T* s) {
+	for (int i = 0; ; i++) {
+		if (s[i] == 0) return i;
+	}
+}
+template<typename T> inline void memcpy(T* x, T* s, int siv) {
+	int ss = siv / sizeof(T);
+	for (int i = 0; i < ss; i++) {
+		x[i] = s[i];
+	}
+}
+template<typename T> inline void memmove(T *fst, T *sec, int size) {
+	int len = size / sizeof(T);
+	T *tmp = new T[len];
+	T *ttmp = tmp;
+	for (int i = 0; i < len; i++) {
+		*(ttmp++) = *(sec++);
+	}
+	ttmp = tmp;
+	for (int i = 0; i < len; i++) {
+		*(fst++) = *(ttmp++);
+	}
+	delete[] tmp;
+}
+
+// And ... <rand.h>:
+
+int __r_nPd[3];
+void srand(unsigned long long x) {
+	__r_nPd[0] = x;
+	for (int i = 0; i < (x & 0xff) + 100; i++) {
+		unsigned long long r = __r_nPd[0] + __r_nPd[1] + __r_nPd[2] + __r_nPd[0] * __r_nPd[2] + 114514;
+		__r_nPd[2] = __r_nPd[1];
+		__r_nPd[1] = __r_nPd[0];
+		__r_nPd[0] = r;
+	}
+}
+unsigned long long rand() {
+	unsigned long long r = __r_nPd[0] + __r_nPd[1] + __r_nPd[2] + __r_nPd[0] * __r_nPd[2] + 114514;
+	__r_nPd[2] = __r_nPd[1];
+	__r_nPd[1] = __r_nPd[0];
+	__r_nPd[0] = r;
+	return __r_nPd[0];
+}
+
+//And ... <algorithm>
+
 template<typename T> void sort(T *l, T *r) {
 	if (l == r - 1) return;
 	int mid = (r - l) >> 1;
@@ -26,37 +90,17 @@ template<typename T> void sort(T *l, T *r) {
 		*i = *j;
 	}
 }
-
 template<typename T> inline T max(T a, T b) {
 	return a > b ? a : b;
 }
-
 template<typename T> inline T min(T a, T b) {
 	return a < b ? a : b;
 }
-
-template<typename T> inline T abs(T x) {
-	return x < 0 ? -x : x;
-}
-
 template<typename T> void swap(T& a, T& b) {
 	T t = a;
 	a = b;
 	b = t;
 }
-
-template<typename T> inline void memset(T* s, int sss, int ss) {
-	T c = 0;
-	for (int i = 0; i < sizeof(T); i++) {
-		c *= 128;
-		c += sss;
-	}
-	int cc = ss / sizeof(T);
-	for (int i = 0; i < cc; i++) {
-		s[i] = c;
-	}
-}
-
 template<typename T> void reverse(T* a, T* b) {
 	b--;
 	while (1) {
@@ -67,48 +111,167 @@ template<typename T> void reverse(T* a, T* b) {
 		if (a == b) return;
 	}
 }
-
-template<typename T> inline int strlen(T* s) {
-	for (int i = 0; ; i++) {
-		if (s[i] == 0) return i;
-	}
-}
-
-template<typename T> inline void memcpy(T* x, T* s, int siv) {
-	int ss = siv / sizeof(T);
-	for (int i = 0; i < ss; i++) {
-		x[i] = s[i];
-	}
-}
-
-template<typename T> inline void discretization(T* l, T* r) {
-	struct dis {
-		T val;
-		int id;
-		bool operator < (const dis sec) const {
-			return val < sec.val;
+template<typename T1, typename T2> class pair {
+	public:
+		T1 first; T2 second;
+		pair() {
+			first = 0;
+			second = 0;
 		}
-	} dis[r - l];
-	for (T* i = l; i != r; i++) {
-		dis[i - l].val = *i;
-		dis[i - l].id = i - l;
-	}
-	sort(dis, dis + (r - l));
-	int muti = 0;
-	for (T* i = l; i != r; i++) {
-		if (i != l && dis[i - l].val == dis[(i - l) - 1].val) {
-			muti++;
+		pair(T1 a, T2 b) {
+			first = a;
+			second = b;
 		}
-		*i = dis[i - l].id - muti;
-	}
+		bool operator < (pair<T1, T2> sec) {
+			return first == sec.first ? second < sec.second : first < sec.first;
+		}
+		pair<T1, T2> operator = (pair<T1, T2> sec) {
+			first = sec.first;
+			second = sec.second;
+			return *this;
+		}
+		pair<T1, T2> operator = (int sec) {
+			first = sec;
+			second = sec;
+			return *this;
+		}
+};
+template<typename T1, typename T2> pair<T1, T2> make_pair(T1 a, T2 b) {
+	return pair<T1, T2>(a, b);
 }
 
+// And Many STL!
+// Likes vector, priority_queue, hashset, queue, bitset...
+
+template<typename T> class vector {
+	private:
+		T *Biter;
+		T *Niter;
+		T *Eiter;
+		int nsize; 
+	public:
+		struct iterator {
+			T* re;
+			iterator(T* er = NULL) {
+				re = er;
+			}
+			void operator = (const T* &f) {
+				re = f;
+			}
+			iterator& operator -- () {
+				re--;
+				return *this;
+			}
+			iterator& operator ++ () {
+				re++;
+				return *this;
+			}
+			const iterator operator -- (int) {
+				iterator fd = *this;
+				re--;
+				return fd;
+			}
+			const iterator operator ++ (int) {
+				iterator fd = *this;
+				re++;
+				return fd;
+			}
+			friend iterator operator + (const iterator &_a, const int& b) {
+				return iterator(_a.re + b);
+			}
+			friend iterator operator + (const int &b, const iterator& _a) {
+				return iterator(_a.re + b);
+			}
+			friend iterator operator - (const iterator &_a, const int& b) {
+				return iterator(_a.re - b);
+			}
+			friend unsigned long long operator - (const iterator &_a, const iterator &_b) {
+				return _a.re - _b.re;
+			}
+			T operator * () const {
+				return *(this->re);
+			}
+			bool operator == (const iterator& res) const {
+				return res.re == this->re;
+			}
+			bool operator != (const iterator& res) const {
+				return !(res == *this);
+			}
+		};
+		vector() {
+			Biter = Niter = Eiter = new T[1];
+			Eiter++;
+			nsize = 1;
+		}
+		~vector() {
+			delete[] Biter;
+		}
+		void clear() {
+			delete[] Biter;
+			Biter = Niter = Eiter = new T[1];
+			Eiter++;
+			nsize = 1;
+		}
+		void resize(int size) {
+			T *old = Biter;
+			int oldlen = Niter - Biter;
+			if (oldlen > size) oldlen = size;
+			Biter = new T[size];
+			Niter = Biter + oldlen;
+			Eiter = Biter + size;
+			memmove(Biter, old, (nsize < size ? nsize : size) * sizeof(T));
+			delete[] old;
+			nsize = size;
+//			printf("resized to 0x%x 0x%x 0x%x\n", Biter, Niter, Eiter);
+		}
+		void push_back(T x) {
+//			printf("now 0x%x 0x%x 0x%x : 0x%x\n", Biter, Niter, Eiter, Eiter - 1);
+			if (Niter == Eiter) {
+				resize((int)(nsize * 1.5 + 0.5));
+			}
+			*Niter = x;
+			Niter++;
+		}
+		void pop_back() {
+			Niter--;
+			if (9 * (Niter - Biter) <= 4 * (Eiter - Biter)) {
+				resize(Niter - Biter);
+			}
+		}
+		void insert(iterator it, T x) {
+			if (it == Eiter) {
+				return push_back(x), void();
+			}
+			if (Niter == Eiter) {
+				resize((int)(nsize * 1.5 + 0.5));
+			}
+		}
+		T& operator [] (int index) {
+			return *(Biter + index);
+		}
+		iterator begin() {
+			return iterator(Biter);
+		}
+		iterator end() {
+			return iterator(Niter);
+		}
+		iterator capacity() {
+			return Eiter - Biter;
+		}
+		bool empty() {
+			return Niter == Biter;
+		}
+		unsigned long long size() {
+			return Niter - Biter;
+		}
+};
 template<typename T> class priority_queue {
 	private:
-		T v[MAXN], n;
+		vector<int> v;
+		int n;
 		void pushup(int i) {
 			T tmp = v[i];
-			while (tmp < v[i >> 1]) {
+			while (i != 1 && v[i >> 1] < tmp) {
 				v[i] = v[i >> 1];
 				i >>= 1;
 			}
@@ -118,10 +281,10 @@ template<typename T> class priority_queue {
 			T tmp = v[i];
 			while ((i << 1) <= n) {
 				int ch = i << 1;
-				if (ch < n && v[ch + 1] < v[ch]) {
+				if (ch < n && v[ch] < v[ch + 1]) {
 					ch++;
 				}
-				if (tmp > v[ch]) {
+				if (tmp < v[ch]) {
 					v[i] = v[ch];
 					i = ch;
 				}
@@ -131,19 +294,24 @@ template<typename T> class priority_queue {
 		}
 	public:
 		priority_queue() {
-			v[0] = -0x3f3f3f3f;
+			v.clear();
+			v.push_back(0);
 			n = 0;
 		}
 		void clear() {
-			v[0] = -0x3f3f3f3f;
+			v.clear();
+			v.push_back(0);
 			n = 0;
 		}
 		void push(T x) {
-			v[++n] = x;
+			v.push_back(x);
+			n++;
 			pushup(n);
 		}
 		void pop() {
-			swap(v[1], v[n--]);
+			swap(v[1], v[n]);
+			n--;
+			v.pop_back();
 			pushdown(1);
 		} 
 		T top() {
@@ -153,10 +321,10 @@ template<typename T> class priority_queue {
 			return n == 0;
 		}
 };
-
 const int mod = 114515;
 template<typename T1, typename T2> class hashset {
-	//T1只支持'int'!
+	// T1只支持'int'!
+	// typename T1 only support 'int'
 	private:
 		struct _slink {
 			_slink *nxt;
@@ -206,7 +374,6 @@ template<typename T1, typename T2> class hashset {
 			}
 		}
 };
-
 template<typename T> class queue {
 	private:
 		T v[MAXN];
@@ -237,58 +404,6 @@ template<typename T> class queue {
 			return r < l;
 		}
 };
-
-
-template<typename T1, typename T2> class pair {
-	public:
-		T1 first; T2 second;
-		pair() {
-			first = 0;
-			second = 0;
-		}
-		pair(T1 a, T2 b) {
-			first = a;
-			second = b;
-		}
-		bool operator < (pair<T1, T2> sec) {
-			return first == sec.first ? second < sec.second : first < sec.first;
-		}
-		pair<T1, T2> operator = (pair<T1, T2> sec) {
-			first = sec.first;
-			second = sec.second;
-			return *this;
-		}
-		pair<T1, T2> operator = (int sec) {
-			first = sec;
-			second = sec;
-			return *this;
-		}
-};
-
-template<typename T1, typename T2> pair<T1, T2> make_pair(T1 a, T2 b) {
-	return pair<T1, T2>(a, b);
-}
-
-
-template<int siz> struct ZAlgorithm {
-	int Z[siz];
-	char str[siz];
-	void main() {
-		Z[0] = 0;
-		int l = 0, r = 0;
-		for (int i = 1; i < siz; i++) {
-			if (i <= r && Z[i - l] < r - i + 1) {
-				Z[i] = Z[i - l];
-			}
-			else {
-				Z[i] = max(0, r - i + 1);
-				while (i + Z[i] < siz && str[Z[i]] == str[Z[i] + i]) Z[i]++;
-				if (i + Z[i] - 1 > r) l = i, r = i + Z[i] - 1;
-			}
-		}
-	}
-};
-
 template<int memory> class bitset {
 	public:
 		unsigned long long mem[(memory + 0x3f) >> 6];
@@ -349,7 +464,7 @@ terminate called after throwing an instance of \'std::overflow_error\'\n\
   what():  _Base_bitset::_M_do_to_ullong\n\
 \n\
 This application has requested the Runtime to terminate it in an unusual way.\n\
-Please contact yinjun2024 for more information.";
+Please contact yinjun2024/disangan223 for more information.";
 					printf("%s", end);
 					int k[1]; 
 					k[1145141919] = 810;
@@ -449,23 +564,52 @@ template<int memory> void operator |= (bitset<memory> &fst, bitset<memory> sec) 
 	}
 }
 
-void srand(unsigned long long x) {
-	rnd[0] = x;
-	for (int i = 0; i < (x & 0xff) + 100; i++) {
-		unsigned long long r = rnd[0] + rnd[1] + rnd[2] + rnd[0] * rnd[2] + 114514;
-		rnd[2] = rnd[1];
-		rnd[1] = rnd[0];
-		rnd[0] = r;
+// We alsy have something new...
+// Such as discretization, abs, z-algorithm, faster tree heap, splay with link-cut tree
+
+template<typename T> struct DiscretizationDis {
+	T val;
+	int id;
+	bool operator < (const DiscretizationDis &sec) const {
+		return val < sec.val;
+	}
+};
+template<typename T> inline T abs(T x) {
+	return x < 0 ? -x : x;
+}
+template<typename T> inline void discretization(T* l, T* r) {
+	DiscretizationDis<T> Discretization_Dis[r - l];
+	for (T* i = l; i != r; i++) {
+		Discretization_Dis[i - l].val = *i;
+		Discretization_Dis[i - l].id = i - l;
+	}
+	sort(Discretization_Dis, Discretization_Dis + (r - l));
+	int muti = 0;
+	for (int i = 0; i < r - l; i++) {
+		if (i && Discretization_Dis[i].val == Discretization_Dis[i - 1].val) {
+			muti++;
+		}
+		*(l + Discretization_Dis[i].id) = i - muti;
 	}
 }
-unsigned long long rand() {
-	unsigned long long r = rnd[0] + rnd[1] + rnd[2] + rnd[0] * rnd[2] + 114514;
-	rnd[2] = rnd[1];
-	rnd[1] = rnd[0];
-	rnd[0] = r;
-	return rnd[0];
-}
-
+template<int siz> struct ZAlgorithm {
+	int Z[siz];
+	char str[siz];
+	void main() {
+		Z[0] = 0;
+		int l = 0, r = 0;
+		for (int i = 1; i < siz; i++) {
+			if (i <= r && Z[i - l] < r - i + 1) {
+				Z[i] = Z[i - l];
+			}
+			else {
+				Z[i] = max(0, r - i + 1);
+				while (i + Z[i] < siz && str[Z[i]] == str[Z[i] + i]) Z[i]++;
+				if (i + Z[i] - 1 > r) l = i, r = i + Z[i] - 1;
+			}
+		}
+	}
+};
 class fhqTreap {
 	struct TreeNode {
 		int sz, val, pty, l, r;
@@ -582,7 +726,6 @@ class fhqTreap {
 		return ans;
 	}
 };
-
 class Splay {
 	public:
 		struct TreeNode {
@@ -796,45 +939,8 @@ class Splay {
 		}
 }
 
+// And more...
 
+// If you have some IDEAs, you can issue me XD
 
-template<typename T> inline void memmove(T *fst, T *sec, int size) {
-	int len = size / sizeof(T);
-	T *tmp = new T[len];
-	T *ttmp = tmp;
-	for (int i = 0; i < len; i++) {
-		*(ttmp++) = *(sec++);
-	}
-	ttmp = tmp;
-	for (int i = 0; i < len; i++) {
-		*(fst++) = *(ttmp++);
-	}
-	delete[] tmp;
-}
-
-template<typename T> class vector {
-	private:
-		T *iter;
-		int len, tp;
-	public:
-		vector() {
-			iter = new T;
-			len = 1;
-		}
-		~vector() {
-			delete[] iter;
-		}
-		void pushback(T x) {
-			if (tp == len) {
-				T *old = iter;
-				iter = new T[len << 1];
-				memmove(iter, old, len * sizeof(T));
-				delete [] old;
-				len <<= 1;
-			}
-			*(iter + (tp++)) = x;
-		}
-		T operator [] (int index) {
-			return *(iter + index);
-		}
-};
+// Warning: There are some bugs in it, you can fix them to use 
