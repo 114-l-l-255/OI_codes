@@ -270,37 +270,35 @@ template<typename T> class priority_queue {
 		vector<int> v;
 		int n;
 		void pushup(int i) {
-			T tmp = v[i];
-			while (i != 1 && v[i >> 1] < tmp) {
-				v[i] = v[i >> 1];
+			T tmp = v[i - 1];
+			while (i != 1 && v[(i >> 1) - 1] < tmp) {
+				v[i - 1] = v[(i >> 1) - 1];
 				i >>= 1;
 			}
-			v[i] = tmp;
+			v[i - 1] = tmp;
 		}
 		void pushdown(int i) {
-			T tmp = v[i];
+			T tmp = v[i - 1];
 			while ((i << 1) <= n) {
-				int ch = i << 1;
-				if (ch < n && v[ch] < v[ch + 1]) {
+				int ch = (i << 1);
+				if (ch < n && v[ch - 1] < v[ch]) {
 					ch++;
 				}
-				if (tmp < v[ch]) {
-					v[i] = v[ch];
+				if (tmp < v[ch - 1]) {
+					v[i - 1] = v[ch - 1];
 					i = ch;
 				}
 				else break;
 			}
-			v[i] = tmp;
+			v[i - 1] = tmp;
 		}
 	public:
 		priority_queue() {
 			v.clear();
-			v.push_back(0);
 			n = 0;
 		}
 		void clear() {
 			v.clear();
-			v.push_back(0);
 			n = 0;
 		}
 		void push(T x) {
@@ -309,13 +307,13 @@ template<typename T> class priority_queue {
 			pushup(n);
 		}
 		void pop() {
-			swap(v[1], v[n]);
+			swap(v[0], v[n - 1]);
 			n--;
 			v.pop_back();
 			pushdown(1);
 		} 
 		T top() {
-			return v[1];
+			return v[0];
 		}
 		bool empty() {
 			return n == 0;
